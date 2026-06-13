@@ -10,8 +10,9 @@
 
 ## 🌐 Live Demo
 
-🚀 **Try Brainify AI Here:**  
-👉 https://vaibh31.github.io/Final_year_project/
+ **Try Brainify AI Here:**  
+
+ https://vaibh31.github.io/Final_year_project/
 
 ## 📖 Overview
 
