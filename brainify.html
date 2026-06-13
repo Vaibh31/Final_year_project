@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brainify - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:,">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" crossorigin="anonymous"
+    referrerpolicy="no-referrer"></script>
+  <!-- PDF and DOCX extraction libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+</head>
+
+<body>
+
+  <div id="app-loading" class="app-loading-screen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Initializing Brainify...</div>
+    </div>
+  </div>
+
+  <div class="stars-bg"></div>
+
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">&#129504;</div>
+        <div class="sidebar-logo-text">Brain<span>ify</span></div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-item active" onclick="goTo('home', this)">🏠 <span>Home</span></div>
+        <div class="nav-item" onclick="goTo('chat', this)">💬 <span>Chat</span></div>
+        <div class="nav-item" onclick="goTo('quiz', this)">📝 <span>Start Quiz</span></div>
+        <div class="nav-item" onclick="goTo('pdf', this)">📄 <span>Upload Notes</span></div>
+        <div class="nav-item" onclick="goTo('leaderboard', this)">🏆 <span>Leaderboard</span></div>
+        <div class="nav-item" onclick="goTo('dashboard', this)">📊 <span>Dashboard</span></div>
+      </div>
+
+      <div class="sidebar-user-section">
+        <div class="sidebar-user-header">LOGGED IN AS</div>
+        <div class="sidebar-user-card">
+          <div class="user-avatar" id="sidebar-user-avatar">?</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Loading...</div>
+            <div class="user-email" id="sidebar-user-email">email@example.com</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="logout-btn" onclick="logoutUser()">⏻ Logout</div>
+      </div>
+    </div>
+    <div id="sidebar-resizer"></div>
+
+    <!-- SIGNUP -->
+    <div class="page auth-page" id="page-signup">
+      <div class="auth-card">
+        <div class="auth-title">Create Account</div>
+        <div class="auth-subtitle">Join Brainify AI today</div>
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" id="signup-name" placeholder="Enter your name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" id="signup-email" type="email" placeholder="email@example.com">
+        </div>
+
+        <div class="form-group" style="position: relative;">
+          <label class="form-label">Password</label>
+          <input class="form-input" id="signup-password" type="password" placeholder="••••••••">
+          <!-- Dynamic Password Validation Popup -->
+          <div class="password-validation-popup" id="password-validation-popup">
+            <div class="pwd-req" id="req-length"><span class="pwd-icon">✕</span> 8+ characters</div>
+            <div class="pwd-req" id="req-upper"><span class="pwd-icon">✕</span> Uppercase letter</div>
+            <div class="pwd-req" id="req-lower"><span class="pwd-icon">✕</span> Lowercase letter</div>
+            <div class="pwd-req" id="req-number"><span class="pwd-icon">✕</span> Number</div>
+            <div class="pwd-req" id="req-special"><span class="pwd-icon">✕</span> Special character</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input class="form-input" id="signup-phone" type="tel" placeholder="Enter 10-digit phone number"
+            maxlength="10" inputmode="numeric" pattern="[0-9]{10}"
+            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          <div id="phone-error-msg" style="color:#ff6b6b;font-size:12px;margin-top:6px;display:none;"></div>
+        </div>
+
+        <button class="btn-submit" id="signup-submit-btn" onclick="signUpUser()">Create Account</button>
+
+        <div class="auth-switch">
+          Already have account? <a onclick="goTo('page-login')">Login</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="page auth-page" id="page-login">
+      <div class="auth-card">
+        <div class="auth-title">Welcome Back</div>
+        <div class="auth-subtitle">Login to your account</div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" id="login-email" placeholder="email@example.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" id="login-password" type="password" placeholder="••••••••">
+        </div>
+
+        <button class="btn-submit" onclick="loginUser()">Login</button>
+
+        <div class="auth-switch">
+          New user? <a onclick="goTo('page-signup')">Create account</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div class="panel-resizer" id="main-sidebar-resizer"></div>
+    <div class="main-content">
+
+      <div class="topbar">
+        <div class="topbar-title">Brainify - Home</div>
+        <div id="realtime-status" class="realtime-badge"><span>●</span> Live Sync</div>
+      </div>
+
+      <!-- HOME -->
+      <div class="page" id="home">
+        <div class="dash-greeting" id="dash-greeting">Welcome, <span id="dash-name">User</span></div>
+        <div class="dash-sub" id="dash-sub">Great to see you today!</div>
+
+        <!-- Mini Dashboard Stats -->
+        <div style="margin-top:32px;">
+          <div
+            style="font-size:14px;font-weight:600;color:var(--text-muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;">
+            📊 Quick Stats</div>
+          <!-- Stats Grid (5 cards) -->
+          <div
+            style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:28px;">
+            <!-- Total Quizzes -->
+            <div
+              style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;transition:all 0.2s;">
+              <div style="font-size:28px;font-weight:700;color:var(--accent);margin-bottom:6px;" id="home-stat-total">0
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;">Total
+                Quizzes</div>
+            </div>
+
+            <!-- Average Score -->
+            <div
+              style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;transition:all 0.2s;">
+              <div style="font-size:28px;font-weight:700;color:#60a5fa;margin-bottom:6px;" id="home-stat-avg">0</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;">Avg
+                Score</div>
+            </div>
+
+            <!-- Best Score -->
+            <div
+              style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;transition:all 0.2s;">
+              <div style="font-size:28px;font-weight:700;color:#4ade80;margin-bottom:6px;" id="home-stat-best">0</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;">Best
+                Score</div>
+            </div>
+
+            <!-- Accuracy -->
+            <div
+              style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;transition:all 0.2s;">
+              <div style="font-size:28px;font-weight:700;color:#f0c040;margin-bottom:6px;" id="home-stat-accuracy">0%
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;">
+                Accuracy</div>
+            </div>
+
+            <!-- Total Time -->
+            <div
+              style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;transition:all 0.2s;">
+              <div style="font-size:28px;font-weight:700;color:#ff6b6b;margin-bottom:6px;" id="home-stat-time">0m</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;">Total
+                Time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div style="margin-top:32px;">
+          <!-- Score Trend Chart -->
+          <div class="home-chart-section">
+            <div class="section-title">📈 Score Trend</div>
+            <div class="home-chart-container" id="home-chart-container">
+              <canvas id="homeScoreChart" height="180"></canvas>
+              <div class="chart-placeholder" id="homeChart-placeholder">
+                <div class="placeholder-icon">📈</div>
+                <div class="placeholder-text">Complete more quizzes to see your score trend</div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="font-size:14px;font-weight:600;color:var(--text-muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;">
+            🔥 Recent Activity</div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+            <div id="home-recent-activity" style="color:var(--text-secondary);font-size:14px;">
+              <div
+                style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:12px;background:rgba(32,210,150,0.1);border-radius:8px;border-left:3px solid var(--accent);">
+                <div style="font-size:16px;">📝</div>
+                <div>
+                  <div style="font-weight:600;color:var(--text-primary);">Completed Quiz: "JavaScript Basics"</div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Score: 85% • 2 hours ago</div>
+                </div>
+              </div>
+              <div
+                style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:12px;background:rgba(96,165,250,0.1);border-radius:8px;border-left:3px solid #60a5fa;">
+                <div style="font-size:16px;">💬</div>
+                <div>
+                  <div style="font-weight:600;color:var(--text-primary);">AI Chat Session</div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Topic: Machine Learning • 5 hours
+                    ago</div>
+                </div>
+              </div>
+              <div
+                style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(244,114,182,0.1);border-radius:8px;border-left:3px solid #ec4899;">
+                <div style="font-size:16px;">📊</div>
+                <div>
+                  <div style="font-weight:600;color:var(--text-primary);">Viewed Dashboard</div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Performance Analytics • 1 day ago
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="margin-top:32px;">
+          <div
+            style="font-size:14px;font-weight:600;color:var(--text-muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;">
+            ⚡ Quick Actions</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+            <div onclick="goTo('quiz', document.querySelector('.nav-item[onclick*=\'quiz\']'))"
+              style="background:linear-gradient(135deg, var(--accent) 0%, rgba(32,210,150,0.8) 100%);border:1px solid var(--accent);border-radius:12px;padding:20px;text-align:center;color:white;cursor:pointer;transition:all 0.2s;">
+              <div style="font-size:24px;margin-bottom:8px;">&#128221;</div>
+              <div style="font-size:16px;font-weight:600;margin-bottom:4px;">Start Quiz</div>
+              <div style="font-size:12px;opacity:0.9;">Create AI-powered quizzes</div>
+            </div>
+            <div onclick="goTo('chat', document.querySelector('.nav-item[onclick*=\'chat\']'))"
+              style="background:linear-gradient(135deg, #60a5fa 0%, rgba(96,165,250,0.8) 100%);border:1px solid #60a5fa;border-radius:12px;padding:20px;text-align:center;color:white;cursor:pointer;transition:all 0.2s;">
+              <div style="font-size:24px;margin-bottom:8px;">&#128172;</div>
+              <div style="font-size:16px;font-weight:600;margin-bottom:4px;">AI Chat</div>
+              <div style="font-size:12px;opacity:0.9;">Chat with AI assistant</div>
+            </div>
+            <div onclick="goTo('pdf', document.querySelector('.nav-item[onclick*=\'pdf\']'))"
+              style="background:linear-gradient(135deg, #f59e0b 0%, rgba(245,158,11,0.8) 100%);border:1px solid #f59e0b;border-radius:12px;padding:20px;text-align:center;color:white;cursor:pointer;transition:all 0.2s;">
+              <div style="font-size:24px;margin-bottom:8px;">📁</div>
+              <div style="font-size:16px;font-weight:600;margin-bottom:4px;">Upload Notes</div>
+              <div style="font-size:12px;opacity:0.9;">Generate quiz from document</div>
+            </div>
+            <div onclick="goTo('dashboard', document.querySelector('.nav-item[onclick*=\'dashboard\']'))"
+              style="background:linear-gradient(135deg, #4ade80 0%, rgba(74,222,128,0.8) 100%);border:1px solid #4ade80;border-radius:12px;padding:20px;text-align:center;color:white;cursor:pointer;transition:all 0.2s;">
+              <div style="font-size:24px;margin-bottom:8px;">&#128202;</div>
+              <div style="font-size:16px;font-weight:600;margin-bottom:4px;">Dashboard</div>
+              <div style="font-size:12px;opacity:0.9;">View your progress</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- CHAT -->
+      <div class="page chat-view" id="chat">
+        <div class="layout chat-layout">
+          <!-- MAIN CHAT AREA -->
+          <div class="main-section chat-main-area">
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-area">
+              <!-- File attachment preview container -->
+              <div class="chat-attachment-preview" id="chat-attachment-preview" style="display:none;">
+                <span class="attachment-pill">
+                  <span class="attachment-icon">📄</span>
+                  <span class="attachment-name" id="chat-attachment-name"></span>
+                  <button class="attachment-remove-btn" onclick="removeChatAttachment()" type="button">×</button>
+                </span>
+              </div>
+              <div class="chat-input-wrap">
+                <button class="chat-upload-btn" id="chat-upload-btn" onclick="triggerChatUpload()" type="button"
+                  title="Upload Document">📎</button>
+                <input type="file" id="chat-file-input" style="display:none;" onchange="handleChatFileSelect(this)"
+                  accept=".pdf,.docx,.txt">
+                <input class="chat-input" id="chat-input" placeholder="Type message..."
+                  onkeydown="if(event.key === 'Enter') { event.preventDefault(); sendMessage(); }">
+                <button class="chat-send" id="send-btn" onclick="sendMessage()">➤</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-resizer" id="chat-panel-resizer"></div>
+
+          <!-- CHAT HISTORY PANEL -->
+          <div class="side-panel chat-panel" id="chat-panel">
+            <div class="chat-history-header">
+              <div class="chat-history-title">💬 Chats</div>
+              <button class="chat-new-btn" id="new-chat-btn" onclick="createNewChat()" title="New Chat">＋ New
+                Chat</button>
+            </div>
+            <div class="chat-history-search">
+              <input class="chat-search-input" id="chat-search" placeholder="Search chats..."
+                oninput="filterChatList(this.value)">
+            </div>
+            <div class="chat-history-list" id="chat-history-list">
+              <!-- dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUIZ -->
+      <div class="page" id="quiz">
+        <div class="layout quiz-layout">
+          <!-- MAIN QUIZ AREA -->
+          <div class="main-section quiz-main-area">
+            <h2 style="margin-bottom:24px;">AI Quiz Generator</h2>
+
+            <div class="form-group">
+              <label class="form-label">Quiz Topic</label>
+              <input class="form-input" id="quiz-topic" placeholder="Enter topic">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Question Count</label>
+              <input class="form-input" id="quiz-count" type="number" min="1" max="50"
+                placeholder="Number of questions (1–50)">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Difficulty Level</label>
+              <div class="select-wrapper">
+                <select class="quiz-select" id="quiz-difficulty">
+                  <option value="easy">Easy</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+            </div>
+
+
+            <div class="button-wrapper" style="display:flex; gap:12px;">
+              <button class="generate-btn" id="generateQuizBtn" style="flex:2;" onclick="handleGenerateQuiz()">✨
+                Generate Quiz</button>
+              <button class="secondary-btn" id="randomTopicBtn" title="Click again for another topic" style="flex:1;">🎲
+                Random</button>
+              <button class="secondary-btn" id="generate-new-quiz-btn" style="flex:1;" onclick="handleNewQuiz()">🆕 New
+                Quiz</button>
+            </div>
+
+            <!-- Quiz Container -->
+
+            <!-- Quiz Container -->
+            <div id="quiz-container" style="margin-top:24px;"></div>
+
+            <!-- Quiz Result Container -->
+            <div id="quiz-result" style="margin-top:24px;"></div>
+
+            <!-- Submit Button -->
+            <div class="button-wrapper" style="margin-top:0;">
+              <button class="generate-btn" id="submit-quiz-btn" style="display:none;margin-top:24px;"
+                onclick="handleSubmitQuiz()">📤 Submit Quiz</button>
+            </div>
+          </div>
+
+          <div class="panel-resizer" id="quiz-panel-resizer"></div>
+
+          <!-- PREVIOUS QUIZZES PANEL -->
+          <div class="side-panel quiz-panel" id="quiz-panel">
+            <h2 style="font-size:16px;margin-bottom:12px;color:var(--text-primary);">📚 Previous Quizzes</h2>
+            <div class="chat-history-list" id="manual-quizzes-list">
+              <!-- dynamically populated -->
+            </div>
+            <div id="manual-quizzes-empty"
+              style="text-align:center;padding:32px 12px;color:var(--text-muted);font-size:12px;line-height:1.6;">
+              No previous quizzes yet.<br>Generate a quiz to get started! 🧠
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF -->
+      <!-- PDF -->
+      <div class="page" id="pdf">
+        <div class="layout pdf-layout notes-container">
+
+          <!-- ================= LEFT MAIN AREA ================= -->
+          <div class="main-section quiz-main-area">
+
+            <!-- HEADER -->
+            <div style="margin-bottom:24px;">
+              <h2 style="margin-bottom:8px;">📄 Notes / Text Explorer</h2>
+              <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px;">
+                Upload a file to generate an AI-powered quiz instantly.
+              </p>
+
+            </div>
+
+            <!-- UPLOAD CARD -->
+            <div class="dash-card upload-box"
+              style="padding:32px;text-align:center;border:2px dashed var(--border);background:rgba(255,255,255,0.01);">
+
+              <div id="file-drop-area">
+                <div style="font-size:48px;margin-bottom:16px;">📁</div>
+                <h3 style="margin-bottom:12px;">Choose a file or drag & drop</h3>
+                <p style="color:var(--text-muted);font-size:13px;margin-bottom:24px;">
+                  Supports PDF, TXT, DOCX (Max 10,000 words)
+                </p>
+
+                <input type="file" id="file-upload" accept=".pdf,.txt,.docx" style="display:none;"
+                  onchange="handleFileSelect(this)">
+
+                <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;max-width:500px;margin:0 auto;">
+                  <button class="btn-submit" onclick="document.getElementById('file-upload').click()"
+                    style="flex:1; min-width:160px; padding: 14px 20px;">
+                    ✨ Select File
+                  </button>
+
+                  <button class="danger-btn-outline" onclick="removeSelectedFile()"
+                    style="flex:1; min-width:160px; padding: 14px 20px;">
+                    🗑 Remove File
+                  </button>
+                </div>
+
+                <div id="selected-file-info" style="display:none;margin-top:16px;padding:12px;background:var(--accent-dim);
+            border-radius:8px;border:1px solid var(--accent);color:var(--accent);font-weight:500;">
+                  <span id="selected-file-name"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CONFIG -->
+            <div id="file-quiz-config" style="display:none;margin-top:24px;">
+              <div class="dash-card quiz-config">
+                <h3 style="margin-bottom:20px;">⚙️ Quiz Configuration</h3>
+
+                <div class="quiz-config-row" style="margin-bottom:20px;">
+                  <div>
+                    <label style="font-size:12px;color:var(--text-muted);margin-bottom:8px;display:block;">
+                      NUMBER OF QUESTIONS
+                    </label>
+                    <input class="form-input" id="file-quiz-count" type="number" value="10" min="1" max="50">
+                  </div>
+
+                  <div>
+                    <label style="font-size:12px;color:var(--text-muted);margin-bottom:8px;display:block;">
+                      DIFFICULTY LEVEL
+                    </label>
+                    <div class="select-wrapper">
+                      <select class="quiz-select" id="file-quiz-difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="button-wrapper" style="display:flex; gap:12px;">
+                  <button class="generate-btn" id="start-pdf-quiz-btn" style="flex:2;"
+                    onclick="handleGenerateQuizFromFile()">
+                    🚀 Generate Quiz from File
+                  </button>
+                  <button class="secondary-btn" id="pdf-generate-new-quiz-btn" style="flex:1;"
+                    onclick="handleNewQuiz()">🆕 New Quiz</button>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- STATUS -->
+            <div id="file-status-area" style="display:none;margin-top:24px;text-align:center;padding:24px;">
+              <div class="typing-dots"><span>.</span><span>.</span><span>.</span></div>
+              <p id="file-status-text" style="color:var(--accent);margin-top:12px;font-weight:500;"></p>
+            </div>
+
+            <!-- ================= QUIZ OUTPUT ================= -->
+            <div id="pdf-quiz-container" style="margin-top:24px;"></div>
+
+            <div id="pdf-quiz-result" style="margin-top:20px;"></div>
+
+            <div class="button-wrapper" style="margin-top:0;">
+              <button class="generate-btn" id="pdf-submit-quiz-btn" style="display:none;margin-top:16px;"
+                onclick="handleSubmitQuiz()">
+                ✅ Submit Quiz
+              </button>
+            </div>
+
+          </div>
+
+          <!-- ================= RIGHT SIDE PANEL ================= -->
+          <div class="panel-resizer" id="pdf-panel-resizer"></div>
+
+          <div class="side-panel quiz-panel sidebar-right" id="pdf-panel">
+
+            <h2 style="font-size:16px;margin-bottom:12px;">
+              📚 Previous Notes
+            </h2>
+
+            <!-- LIST -->
+            <div class="chat-history-list" id="pdf-quizzes-list"></div>
+
+            <!-- EMPTY STATE -->
+            <div id="pdf-quizzes-empty" style="text-align:center;padding:32px 12px;color:var(--text-muted);
+        font-size:12px;line-height:1.6;">
+              No previous quizzes yet.<br>
+              Upload a document to get started! 📄
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- removeSelectedFile() and handleFileSelect() are defined in script.js -->
+
+      <!-- DASHBOARD -->
+      <div class="page dashboard-view" id="dashboard">
+        <div style="margin-bottom:24px;">
+          <h2 style="margin-bottom:8px;">📊 Learning Dashboard</h2>
+          <p style="color:var(--text-muted);font-size:14px;">Track your progress and identify areas for improvement.</p>
+        </div>
+
+        <!-- AI Suggestions Section -->
+        <div id="ai-suggestions-card" class="dash-card"
+          style="display:none;background:linear-gradient(135deg, rgba(32,210,150,0.1) 0%, rgba(96,165,250,0.1) 100%);border:1px solid var(--accent-glow);">
+          <h3 style="color:var(--accent);margin-bottom:12px;">📈 AI Performance Insights</h3>
+          <div id="ai-suggestions-content" style="font-size:14px;line-height:1.6;color:var(--text-primary);">
+            <!-- AI generated content -->
+          </div>
+        </div>
+
+        <!-- 6 stat cards -->
+        <div class="stats-grid stats-grid-6">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Quizzes Taken</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-avg">0</div>
+            <div class="stat-label">Avg Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-best">0</div>
+            <div class="stat-label">Highest Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-accuracy">0%</div>
+            <div class="stat-label">Overall Accuracy</div>
+          </div>
+          <div class="stat-card" id="streak-card">
+            <div class="stat-value" id="stat-streak">0</div>
+            <div class="stat-label">Active Streak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-topics">0</div>
+            <div class="stat-label">Mastered Topics</div>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <h3 style="margin-bottom:20px;">🧠 Topic Mastery Breakdown</h3>
+          <div id="topic-mastery-list"
+            style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:20px;">
+            <!-- Topic cards will go here -->
+            <div style="text-align:center;padding:40px;color:var(--text-muted);">
+              No topic data available yet. Complete a quiz to see your breakdown!
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Trends -->
+        <div class="charts-section">
+          <div class="section-header">
+            <h2>📊 Performance Trends</h2>
+            <p>Track your quiz performance over time</p>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4>📈 Score Trend</h4>
+                <span class="chart-info">Your quiz scores over the last 10 attempts</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="scoreChart" height="200"></canvas>
+                <div class="chart-placeholder" id="scoreChart-placeholder">
+                  <div class="placeholder-icon">📈</div>
+                  <div class="placeholder-text">Complete quizzes to see your score trend</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4>🎯 Accuracy Trend</h4>
+                <span class="chart-info">Your accuracy percentage over time</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="accuracyChart" height="200"></canvas>
+                <div class="chart-placeholder" id="accuracyChart-placeholder">
+                  <div class="placeholder-icon">🎯</div>
+                  <div class="placeholder-text">Complete quizzes to see your accuracy trend</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quiz Analytics -->
+        <div class="charts-section">
+          <div class="section-header">
+            <h2>📚 Quiz Analytics</h2>
+            <p>Understand your quiz patterns and preferences</p>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4>🎯 Difficulty Distribution</h4>
+                <span class="chart-info">Breakdown of quiz difficulties you've attempted</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="difficultyChart" height="250"></canvas>
+                <div class="chart-placeholder" id="difficultyChart-placeholder">
+                  <div class="placeholder-icon">🎯</div>
+                  <div class="placeholder-text">Complete quizzes to see difficulty distribution</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4>📚 Topic Distribution</h4>
+                <span class="chart-info">Topics you've practiced the most</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="topicChart" height="250"></canvas>
+                <div class="chart-placeholder" id="topicChart-placeholder">
+                  <div class="placeholder-icon">📚</div>
+                  <div class="placeholder-text">Complete quizzes to see topic distribution</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="dash-card" style="margin-top:20px;">
+          <h3>🕓 Recent Activity</h3>
+          <div id="recent-activity-list"></div>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD -->
+      <div class="page" id="leaderboard">
+        <div class="leaderboard-wrapper">
+          <div style="text-align:center; margin-bottom:60px;" class="reveal visible">
+            <h2 class="section-title" style="font-size: 32px; font-weight: 800;">Global Leaderboard 🏆 <span
+                style="font-size:14px;font-weight:600;vertical-align:middle;margin-left:10px;background:rgba(32,210,150,0.15);border:1px solid rgba(32,210,150,0.4);padding:4px 12px;border-radius:100px;color:var(--accent);letter-spacing:0.5px;"><span
+                  class="lb-live-dot"></span>LIVE</span></h2>
+            <p style="color:var(--text-secondary); margin-top:12px; font-size:16px;">See how you rank against other
+              learners &mdash; updates in real-time</p>
+          </div>
+
+          <!-- Top 3 Podium -->
+          <div
+            style="display:flex; justify-content:center; align-items:flex-end; gap:24px; margin-bottom:60px; min-height:300px; flex-wrap: wrap;">
+
+            <!-- 2nd Place -->
+            <div style="text-align:center; animation:slideUp 0.8s ease 0.2s both;" class="reveal visible">
+              <div
+                style="background:linear-gradient(135deg, rgba(60,130,220,0.3) 0%, rgba(60,130,220,0.1) 100%); border:1px solid rgba(60,130,220,0.3); border-radius:16px; padding:32px 24px; margin-bottom:12px; min-width:160px; box-shadow:0 8px 32px rgba(60,130,220,0.15);">
+                <div style="font-size:48px; margin-bottom:8px;">🥈</div>
+                <div id="lb-2nd-name"
+                  style="font-size:16px; font-weight:600; color:var(--text-primary); margin-bottom:8px;">User Name</div>
+                <div id="lb-2nd-score" style="font-size:13px; color:var(--text-secondary);">Score: 0 pts</div>
+              </div>
+              <div style="font-size:56px; font-weight:700; color:#3c82dc;">2</div>
+            </div>
+
+            <!-- 1st Place (Center, Larger) -->
+            <div style="text-align:center; animation:slideUp 0.8s ease 0s both;" class="reveal visible">
+              <div
+                style="background:linear-gradient(135deg, var(--accent) 0%, rgba(32,210,150,0.3) 100%); border:2px solid var(--accent); border-radius:16px; padding:40px 28px; margin-bottom:12px; min-width:180px; box-shadow:0 16px 48px rgba(32,210,150,0.25); position:relative;">
+                <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:32px;">👑
+                </div>
+                <div style="font-size:64px; margin-bottom:12px; margin-top:8px;">🥇</div>
+                <div id="lb-1st-name"
+                  style="font-size:18px; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Top Learner
+                </div>
+                <div id="lb-1st-score" style="font-size:14px; color:var(--text-secondary); font-weight:600;">Score: 0
+                  pts
+                </div>
+              </div>
+              <div
+                style="font-size:64px; font-weight:800; color:var(--accent); text-shadow:0 0 20px rgba(32,210,150,0.3);">
+                1</div>
+            </div>
+
+            <!-- 3rd Place -->
+            <div style="text-align:center; animation:slideUp 0.8s ease 0.4s both;" class="reveal visible">
+              <div
+                style="background:linear-gradient(135deg, rgba(255,184,82,0.3) 0%, rgba(255,184,82,0.1) 100%); border:1px solid rgba(255,184,82,0.3); border-radius:16px; padding:32px 24px; margin-bottom:12px; min-width:160px; box-shadow:0 8px 32px rgba(255,184,82,0.15);">
+                <div style="font-size:48px; margin-bottom:8px;">🥉</div>
+                <div id="lb-3rd-name"
+                  style="font-size:16px; font-weight:600; color:var(--text-primary); margin-bottom:8px;">User Name</div>
+                <div id="lb-3rd-score" style="font-size:13px; color:var(--text-secondary);">Score: 0 pts</div>
+              </div>
+              <div style="font-size:56px; font-weight:700; color:#ffb852;">3</div>
+            </div>
+          </div>
+
+          <!-- Full Leaderboard Table -->
+          <div
+            style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; overflow:hidden; width:100%;"
+            class="reveal visible">
+            <div
+              style="padding:20px 24px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); display:flex; align-items:center; justify-content:space-between;">
+              <h3 style="margin:0; font-size:16px; font-weight:600;">Global Ranking</h3>
+              <span style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px;"><span
+                  class="lb-live-dot"></span> Live updates</span>
+            </div>
+            <!-- Table header -->
+            <div class="lb-table-header"
+              style="display:grid; grid-template-columns:56px 1fr 110px 90px 80px; padding:10px 24px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02);">
+              <span
+                style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Rank</span>
+              <span
+                style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">User</span>
+              <span
+                style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">High
+                Score</span>
+              <span
+                style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Time</span>
+              <span
+                style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Date</span>
+            </div>
+            <div id="leaderboard-table-body">
+              <!-- skeleton shown immediately by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- END app-container -->
+
+  <style>
+    /* --- LEADERBOARD VIEW LAYOUT --- */
+    #leaderboard {
+      padding: 0 !important;
+    }
+
+    .leaderboard-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      min-height: 100%;
+    }
+
+    .leaderboard-wrapper>* {
+      flex-shrink: 0;
+    }
+
+    /* --- LEADERBOARD LIVE & SKELETON --- */
+    @keyframes lb-pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .lb-live-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: lb-pulse 1.4s ease-in-out infinite;
+      box-shadow: 0 0 6px rgba(32, 210, 150, 0.8);
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -400px 0;
+      }
+
+      100% {
+        background-position: 400px 0;
+      }
+    }
+
+    .lb-skeleton {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.04) 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 8px;
+    }
+
+    .lb-skeleton-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lb-updated-flash {
+      animation: lb-flash 0.6s ease;
+    }
+
+    @keyframes lb-flash {
+      0% {
+        background: rgba(32, 210, 150, 0.12);
+      }
+
+      100% {
+        background: transparent;
+      }
+    }
+
+    .lb-rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .lb-table-row {
+      display: grid;
+      grid-template-columns: 56px 1fr 100px 80px;
+      align-items: center;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+      cursor: default;
+    }
+
+    .lb-table-row:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .lb-table-row:last-child {
+      border-bottom: none;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+
+      .lb-table-row,
+      .lb-table-header {
+        grid-template-columns: 46px 1fr 60px 50px 60px !important;
+        padding: 10px 12px !important;
+      }
+
+      .leaderboard-wrapper {
+        padding: 20px 12px;
+      }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js?v=8"></script>
+</body>
+
+</html>
