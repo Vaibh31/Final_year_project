@@ -223,22 +223,6 @@ This project demonstrates the practical implementation of:
 
 ---
 
-## 👥 Team Members
-
-- Student Name 1
-- Student Name 2
-- Student Name 3
-- Student Name 4
-
----
-
-## 👨‍🏫 Project Guide
-
-**Guide Name**
-
-Department of Computer Science and Engineering
-
----
 
 ## 📜 Conclusion
 
