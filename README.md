@@ -8,6 +8,11 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-Logic-yellow)
 ![Supabase](https://img.shields.io/badge/Supabase-Backend-green)
 
+## 🌐 Live Demo
+
+🚀 **Try Brainify AI Here:**  
+👉 https://vaibh31.github.io/Final_year_project/
+
 ## 📖 Overview
 
 Brainify AI is an intelligent AI-powered learning platform designed to transform the traditional learning experience into an interactive, personalized, and engaging process. The platform enables users to generate quizzes automatically, upload study materials, interact with an AI assistant, monitor academic performance, and track learning progress through visual analytics.
